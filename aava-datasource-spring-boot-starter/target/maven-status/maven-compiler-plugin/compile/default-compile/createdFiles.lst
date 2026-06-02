@@ -1,0 +1,10 @@
+com/asc/aava/datasource/config/DataSourceWithIAM$RdsIamDataSource.class
+com/asc/aava/datasource/config/DataSourceWithAzureWIF.class
+com/asc/aava/datasource/config/DataSourceWithGCPWIF.class
+com/asc/aava/datasource/autoconfigure/AavaDatasourceProperties.class
+com/asc/aava/datasource/config/DatabaseConfig.class
+com/asc/aava/datasource/config/DataSourceWithAzureWIF$AzureWifDataSource.class
+com/asc/aava/datasource/autoconfigure/AavaDatasourceAutoConfiguration.class
+com/asc/aava/datasource/loader/GenericPropertiesLoader.class
+com/asc/aava/datasource/config/DataSourceWithIAM.class
+com/asc/aava/datasource/config/DataSourceWithGCPWIF$GcpWifDataSource.class

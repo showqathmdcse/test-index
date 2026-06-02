@@ -1,0 +1,36 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  MAVEN_ID: 'AAVA'
+  JDK_VERSION: '1.21'
+  JAVA_VERSION_SPEC: '21'
+
+jobs:
+- job: buildAndDeploy
+  displayName: 'Build and Deploy Maven Feed to Artifacts'
+  steps:
+  - task: JavaToolInstaller@0
+    displayName: 'Set up Java'
+    inputs:
+      versionSpec: $(JAVA_VERSION_SPEC)
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+
+  - task: MavenAuthenticate@0
+    displayName: 'Authenticate to Azure Artifacts Feed'
+    inputs:
+      artifactsFeeds: $(MAVEN_ID)
+
+  - task: Maven@3
+    displayName: 'Build and Deploy with Maven'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean deploy'
+      options: '-B'
+      publishJUnitResults: true
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: $(JDK_VERSION)
+      mavenAuthenticateFeed: true

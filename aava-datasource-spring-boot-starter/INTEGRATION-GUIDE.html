@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAVA Datasource Starter — Integration Guide</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --bg: #ffffff;
+            --card-bg: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #e0e0e0;
+            --success: #1e8e3e;
+            --warning: #f9ab00;
+            --error: #d93025;
+            --code-bg: #1e1e2e;
+            --code-text: #cdd6f4;
+            --aws-color: #ff9900;
+            --azure-color: #0078d4;
+            --gcp-color: #4285f4;
+            --password-color: #1e8e3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 80px 60px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.85;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge-row {
+            margin-top: 24px;
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 50px 80px;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 48px 56px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+
+        .section h2 {
+            font-size: 1.7rem;
+            margin-bottom: 24px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .section h2 .step-num {
+            background: var(--primary);
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .section h3 {
+            font-size: 1.2rem;
+            margin: 28px 0 14px;
+            color: var(--text);
+        }
+
+        .section p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 24px 28px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            width: 100%;
+        }
+
+        code {
+            background: #e8eaed;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .note {
+            background: #e8f0fe;
+            border-left: 4px solid var(--primary);
+            padding: 18px 24px;
+            border-radius: 0 8px 8px 0;
+            margin: 18px 0;
+            font-size: 0.95rem;
+        }
+
+        .note strong {
+            color: var(--primary-dark);
+        }
+
+        .warning {
+            background: #fef7e0;
+            border-left: 4px solid var(--warning);
+            padding: 18px 24px;
+            border-radius: 0 8px 8px 0;
+            margin: 18px 0;
+            font-size: 0.95rem;
+        }
+
+        .warning strong {
+            color: #e37400;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background: #f1f3f4;
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .auth-tab {
+            padding: 14px 32px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .auth-tab:hover {
+            color: var(--text);
+            background: #f1f3f4;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .auth-tab[data-tab="password"].active { color: var(--password-color); border-bottom-color: var(--password-color); }
+        .auth-tab[data-tab="aws-iam"].active { color: var(--aws-color); border-bottom-color: var(--aws-color); }
+        .auth-tab[data-tab="azure-wif"].active { color: var(--azure-color); border-bottom-color: var(--azure-color); }
+        .auth-tab[data-tab="gcp-wif"].active { color: var(--gcp-color); border-bottom-color: var(--gcp-color); }
+        .auth-tab[data-tab="secret-azure"].active { color: var(--azure-color); border-bottom-color: var(--azure-color); }
+        .auth-tab[data-tab="secret-aws"].active { color: var(--aws-color); border-bottom-color: var(--aws-color); }
+        .auth-tab[data-tab="secret-gcp"].active { color: var(--gcp-color); border-bottom-color: var(--gcp-color); }
+
+        .auth-content {
+            display: none;
+            padding: 28px 0 0;
+        }
+
+        .auth-content.active {
+            display: block;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 1rem;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            font-size: 1.3rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 16px 28px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .flow-arrow {
+            font-size: 1.8rem;
+            color: var(--primary);
+            padding: 0 12px;
+        }
+
+        .troubleshooting-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .troubleshooting-item summary {
+            padding: 16px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            background: #f8f9fa;
+            font-size: 0.95rem;
+        }
+
+        .troubleshooting-item summary:hover {
+            background: #f1f3f4;
+        }
+
+        .troubleshooting-item .detail {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cloud-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin: 14px 0;
+        }
+
+        .cloud-card h4 {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.05rem;
+        }
+
+        .cloud-card.aws { border-left: 4px solid var(--aws-color); }
+        .cloud-card.azure { border-left: 4px solid var(--azure-color); }
+        .cloud-card.gcp { border-left: 4px solid var(--gcp-color); }
+
+        .token-table td:first-child {
+            font-weight: 600;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 28px 36px;
+            margin-bottom: 40px;
+        }
+
+        .toc h3 {
+            margin-bottom: 14px;
+            font-size: 1.1rem;
+        }
+
+        .toc ol {
+            padding-left: 24px;
+            columns: 2;
+            column-gap: 40px;
+        }
+
+        .toc li {
+            padding: 6px 0;
+            font-size: 0.95rem;
+        }
+
+        .toc a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .remove-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .remove-list li {
+            padding: 10px 16px;
+            margin: 8px 0;
+            background: #fce8e6;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remove-list li::before {
+            content: "\2715";
+            color: var(--error);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1200px) {
+            .container { padding: 40px 40px; }
+            .section { padding: 36px 40px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 50px 24px; }
+            .header h1 { font-size: 2rem; }
+            .container { padding: 24px 16px; }
+            .section { padding: 24px 20px; }
+            .auth-tabs { flex-wrap: wrap; }
+            .auth-tab { padding: 10px 16px; font-size: 0.9rem; }
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+            .toc ol { columns: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>AAVA Datasource Starter</h1>
+    <p>Integration Guide — How to configure the library in your Spring Boot service</p>
+    <div class="badge-row">
+        <span class="badge">Java 21</span>
+        <span class="badge">Spring Boot 3.5.x</span>
+        <span class="badge">PostgreSQL</span>
+        <span class="badge">v1.0.1</span>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="toc">
+        <h3>Contents</h3>
+        <ol>
+            <li><a href="#step1">Add Maven Dependency</a></li>
+            <li><a href="#step2">Exclude Spring Boot's Default Auto-Configuration</a></li>
+            <li><a href="#step3">Add Required Properties</a></li>
+            <li><a href="#step4">Configure Auth Mode Per Environment</a></li>
+            <li><a href="#step-secrets">Secrets Manager Configuration</a></li>
+            <li><a href="#step5">Optional Configuration</a></li>
+            <li><a href="#step6">Cloud Prerequisites</a></li>
+            <li><a href="#step7">Remove Old Code (Migration)</a></li>
+            <li><a href="#step8">Verification Checklist</a></li>
+            <li><a href="#step9">Troubleshooting</a></li>
+        </ol>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section">
+        <h2>How It Works</h2>
+        <p>The starter uses Spring Boot's auto-configuration. Add the dependency, set a single environment variable, and it wires the correct DataSource automatically.</p>
+        <div class="flow-diagram">
+            <div class="flow-step">Add Dependency</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">Set <code>DATASOURCE_AUTH_MODE</code></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">Starter auto-configures<br>DataSource + JPA</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">Service connects to DB</div>
+        </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="section" id="step1">
+        <h2><span class="step-num">1</span> Add Maven Dependency</h2>
+        <p>Add the starter to your service's <code>pom.xml</code>:</p>
+        <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.asc.aava&lt;/groupId&gt;
+    &lt;artifactId&gt;aava-datasource-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.1&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+        <p>Ensure the AAVA feed is configured in your <code>pom.xml</code> or <code>settings.xml</code>:</p>
+        <pre><code>&lt;repository&gt;
+    &lt;id&gt;AAVA&lt;/id&gt;
+    &lt;url&gt;https://pkgs.dev.azure.com/ascendionava/AAVA/_packaging/AAVA/maven/v1&lt;/url&gt;
+    &lt;releases&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/releases&gt;
+    &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+&lt;/repository&gt;</code></pre>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="section" id="step2">
+        <h2><span class="step-num">2</span> Exclude Spring Boot's Default Auto-Configuration</h2>
+        <p>In your main application class, exclude Spring Boot's default datasource beans:</p>
+        <pre><code>import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class
+})
+@EnableTransactionManagement
+public class MyServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyServiceApplication.class, args);
+    }
+}</code></pre>
+
+        <div class="note">
+            <strong>Why?</strong> The starter provides its own <code>DataSource</code>, <code>EntityManagerFactory</code>, and <code>TransactionManager</code>. Without this exclusion, Spring Boot creates a conflicting second set and the app fails to start.
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="section" id="step3">
+        <h2><span class="step-num">3</span> Add Properties in <code>application.properties</code></h2>
+        <p>Add the following properties to your service's <code>application.properties</code>. Each value uses <code>${ENV_VAR:default}</code> syntax — the library picks the value from the environment variable first, and falls back to the default if not set.</p>
+
+        <div style="border: 3px solid var(--success); border-radius: 10px; padding: 24px 28px; margin: 20px 0; background: #e6f4ea;">
+            <h4 style="color: var(--success); margin-bottom: 12px; font-size: 1.1rem;">NEW — These 2 properties are introduced by the datasource starter</h4>
+            <pre style="margin: 0;"><code># Base package(s) containing your @Entity classes (comma-separated for multiple)
+aava.datasource.base-package=com.asc.aava.guardrails
+
+# Auth mode — driven by environment variable, defaults to password
+aava.datasource.auth-mode=${DATASOURCE_AUTH_MODE:password}</code></pre>
+            <p style="margin: 12px 0 0; font-size: 0.9rem; color: var(--text-secondary);">These are the only new properties you need to add. Everything else below already exists in most services.</p>
+        </div>
+
+        <pre><code># ─── Driver & Connection ───────────────────────────────────────────────
+driverClassName=${DB_DRIVER:org.postgresql.Driver}
+datasource.url=${DB_URL:jdbc:postgresql://aava-dev-postgres-db.postgres.database.azure.com:5432/postgres}
+datasource.username=${DB_USER:postgres}
+
+# ─── Password Configuration ───────────────────────────────────────────
+# Option 1: Fetch password from Secrets Manager (Azure Key Vault / AWS Secrets / GCP Secret Manager)
+datasource.password.keyname=${DB_PASSWORD_KEY_NAME:DB-PASSWORD}
+
+# Option 2: Pass password directly via environment variable (fallback if secret not found)
+datasource.password=${DB_PASSWORD:}
+
+# ─── AAVA Datasource Starter Config (NEW) ─────────────────────────────
+# Base package(s) containing your @Entity classes
+aava.datasource.base-package=com.asc.aava.guardrails
+
+# Database schema — MUST match your service's schema
+aava.datasource.schema=core
+
+# Auth mode — driven by environment variable, defaults to password
+aava.datasource.auth-mode=${DATASOURCE_AUTH_MODE:password}
+
+# ─── HikariCP Connection Pool ─────────────────────────────────────────
+datasource.hikari.schema=core
+datasource.hikari.max-lifetime=1800000
+datasource.hikari.connection-timeout=30000
+datasource.hikari.idle-timeout=300000
+datasource.hikari.minimum-idle=2
+datasource.hikari.maximum-pool-size=5
+
+# ─── JPA / Hibernate Configuration ────────────────────────────────────
+database-platform=${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+hibernate.ddl-auto=none
+properties.hibernate.default_schema=core
+show-sql=true
+properties.hibernate.format_sql=true
+properties.hibernate.use_sql_comments=true</code></pre>
+
+        <h3>Where Does the Library Pick Values From?</h3>
+        <table>
+            <thead>
+                <tr><th>Property</th><th>Picked From</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>datasource.url</code></td><td>Env var <code>DB_URL</code> → fallback to default in properties</td><td>JDBC URL to your PostgreSQL database</td></tr>
+                <tr><td><code>datasource.username</code></td><td>Env var <code>DB_USER</code> → fallback to default in properties</td><td>Database username (or IAM/AAD principal name)</td></tr>
+                <tr><td><code>datasource.password</code></td><td>Env var <code>DB_PASSWORD</code> → fallback to empty</td><td>Direct password (used only in password mode)</td></tr>
+                <tr><td><code>datasource.password.keyname</code></td><td>Env var <code>DB_PASSWORD_KEY_NAME</code> → fallback <code>DB-PASSWORD</code></td><td>Secret key name in your vault (Key Vault / Secrets Manager)</td></tr>
+                <tr><td><code>aava.datasource.schema</code></td><td>Directly in properties (no env var default)</td><td><strong>Required</strong> — your service's database schema name</td></tr>
+                <tr><td><code>aava.datasource.auth-mode</code></td><td>Env var <code>DATASOURCE_AUTH_MODE</code> → fallback <code>password</code></td><td>Which authentication mode to use</td></tr>
+                <tr><td><code>database-platform</code></td><td>Env var <code>DB_HIBERNATE_DIALECT</code> → fallback PostgreSQL dialect</td><td>Hibernate dialect class</td></tr>
+                <tr><td><code>driverClassName</code></td><td>Env var <code>DB_DRIVER</code> → fallback PostgreSQL driver</td><td>JDBC driver class</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Password Resolution in <code>password</code> Mode</h3>
+        <p>When <code>auth-mode=password</code>, the library resolves the DB password in this order:</p>
+        <div style="background: #f1f3f4; border-radius: 8px; padding: 20px; margin: 14px 0;">
+            <div class="flow-diagram" style="flex-direction: column; align-items: stretch; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="background: var(--primary); color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">1</span>
+                    <span><strong>Secrets Manager</strong> — If <code>datasource.password.keyname</code> is set AND a SecretsManager bean is available, it fetches the password from the vault (Azure Key Vault / AWS Secrets Manager / GCP Secret Manager)</span>
+                </div>
+                <div style="text-align: center; color: var(--text-secondary);">↓ if secret not found or SecretsManager not configured</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="background: var(--primary); color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">2</span>
+                    <span><strong>Environment Variable</strong> — Falls back to <code>datasource.password</code> which reads from <code>DB_PASSWORD</code> env var</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Want to skip secrets and just use an env var for password?</strong><br>
+            Simply leave <code>datasource.password.keyname</code> empty and set the <code>DB_PASSWORD</code> environment variable directly. The library will use it as the connection password.
+            <pre style="margin-top: 10px;"><code># In your environment / deployment manifest:
+DB_PASSWORD=my-actual-password
+
+# In application.properties — leave keyname empty:
+datasource.password.keyname=
+datasource.password=${DB_PASSWORD:}</code></pre>
+        </div>
+
+        <div class="warning">
+            <strong>Want to use secrets manager (recommended for production)?</strong><br>
+            Set the secret key name and the library will fetch the password from your cloud's vault automatically:
+            <pre style="margin-top: 10px;"><code># The library looks up "DB-PASSWORD" key in your configured secrets manager
+datasource.password.keyname=${DB_PASSWORD_KEY_NAME:DB-PASSWORD}</code></pre>
+        </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="section" id="step4">
+        <h2><span class="step-num">4</span> Configure Auth Mode Per Environment</h2>
+        <p>Switch between modes by setting the <code>DATASOURCE_AUTH_MODE</code> environment variable — no code changes needed.</p>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="password" onclick="switchTab('password')">password</button>
+            <button class="auth-tab" data-tab="aws-iam" onclick="switchTab('aws-iam')">aws-iam</button>
+            <button class="auth-tab" data-tab="azure-wif" onclick="switchTab('azure-wif')">azure-wif</button>
+            <button class="auth-tab" data-tab="gcp-wif" onclick="switchTab('gcp-wif')">gcp-wif</button>
+        </div>
+
+        <div class="auth-content active" id="tab-password">
+            <h3>Password Mode (Local Dev / Traditional DB)</h3>
+            <p>In password mode, the library needs a database password. You have <strong>two options</strong> to provide it:</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                <div style="border: 2px solid var(--success); border-radius: 8px; padding: 16px;">
+                    <h4 style="color: var(--success); margin-bottom: 8px;">Option A: Secrets Manager (Recommended for Prod)</h4>
+                    <p style="font-size: 0.88rem; margin-bottom: 10px;">Set the secret key name — the library fetches password from your vault automatically</p>
+                    <pre style="font-size: 0.82rem;"><code>datasource.password.keyname=${DB_PASSWORD_KEY_NAME:DB-PASSWORD}</code></pre>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary);">Works with: Azure Key Vault, AWS Secrets Manager, GCP Secret Manager</p>
+                </div>
+                <div style="border: 2px solid var(--primary); border-radius: 8px; padding: 16px;">
+                    <h4 style="color: var(--primary); margin-bottom: 8px;">Option B: Environment Variable (Simple)</h4>
+                    <p style="font-size: 0.88rem; margin-bottom: 10px;">Pass password directly via <code>DB_PASSWORD</code> env var — no secrets manager needed</p>
+                    <pre style="font-size: 0.82rem;"><code>datasource.password.keyname=
+datasource.password=${DB_PASSWORD:}</code></pre>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary);">Set <code>DB_PASSWORD=yourpassword</code> in your environment</p>
+                </div>
+            </div>
+
+            <pre><code># Full password mode example
+aava.datasource.auth-mode=password
+datasource.url=${DB_URL:jdbc:postgresql://aava-dev-postgres-db.postgres.database.azure.com:5432/postgres}
+datasource.username=${DB_USER:postgres}
+datasource.password.keyname=${DB_PASSWORD_KEY_NAME:DB-PASSWORD}
+datasource.password=${DB_PASSWORD:}</code></pre>
+
+            <div class="note">
+                <strong>Resolution order:</strong> The library first tries to fetch the password using <code>datasource.password.keyname</code> from the Secrets Manager. If the secret is not found or SecretsManager is not configured, it falls back to <code>datasource.password</code> (the <code>DB_PASSWORD</code> env var).
+            </div>
+        </div>
+
+        <div class="auth-content" id="tab-aws-iam">
+            <h3>AWS IAM Mode (RDS — No Stored Passwords)</h3>
+            <pre><code># application.properties
+aava.datasource.auth-mode=aws-iam
+datasource.url=jdbc:postgresql://my-rds-host.us-east-1.rds.amazonaws.com:5432/mydb
+datasource.username=myiamuser
+aava.secrets.region=us-east-1
+aava.secrets.assume-role-arn=arn:aws:iam::123456789012:role/my-rds-role</code></pre>
+            <div class="note">
+                <strong>No password needed.</strong> The library generates short-lived IAM authentication tokens (15 min TTL) via STS role assumption. Connections auto-refresh every 14 minutes.
+            </div>
+        </div>
+
+        <div class="auth-content" id="tab-azure-wif">
+            <h3>Azure WIF Mode (Azure DB for PostgreSQL)</h3>
+            <pre><code># application.properties
+aava.datasource.auth-mode=azure-wif
+datasource.url=jdbc:postgresql://myserver.postgres.database.azure.com:5432/mydb
+datasource.username=my-aad-principal-name</code></pre>
+            <div class="note">
+                <strong>No password needed.</strong> Uses <code>DefaultAzureCredential</code> which auto-resolves from Kubernetes WIF → Managed Identity → Azure CLI. Tokens refresh every 50 minutes.
+            </div>
+        </div>
+
+        <div class="auth-content" id="tab-gcp-wif">
+            <h3>GCP WIF Mode (Cloud SQL)</h3>
+            <pre><code># application.properties
+aava.datasource.auth-mode=gcp-wif
+datasource.url=jdbc:postgresql://10.0.0.5:5432/mydb
+datasource.username=my-sa@my-project.iam</code></pre>
+            <div class="warning">
+                <strong>Username format:</strong> Use the service account email <strong>without</strong> <code>.gserviceaccount.com</code> suffix.<br>
+                Example: <code>my-sa@my-project.iam</code> for <code>my-sa@my-project.iam.gserviceaccount.com</code>
+            </div>
+            <div class="note">
+                <strong>No password needed.</strong> Uses <code>GoogleCredentials.getApplicationDefault()</code>. Tokens refresh every 50 minutes.
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px;">Environment Variable Mapping</h3>
+        <table>
+            <thead>
+                <tr><th>Deployment</th><th>Set <code>DATASOURCE_AUTH_MODE</code> to</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Local development</td><td><code>password</code> (or omit — it's the default)</td></tr>
+                <tr><td>AWS (EKS / ECS / EC2)</td><td><code>aws-iam</code></td></tr>
+                <tr><td>Azure (AKS)</td><td><code>azure-wif</code></td></tr>
+                <tr><td>GCP (GKE)</td><td><code>gcp-wif</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SECRETS MANAGER CONFIG -->
+    <div class="section" id="step-secrets">
+        <h2><span class="step-num">5</span> Secrets Manager Configuration (For Password Mode)</h2>
+        <p>If you use <code>datasource.password.keyname</code> to fetch the DB password from a vault, you need to configure the secrets manager connection in your consuming service's <code>application.properties</code>.</p>
+
+        <h3>Required Dependencies (Only if using Secrets Manager)</h3>
+        <p>Add these to your service's <code>pom.xml</code> — pick the adapter matching your cloud:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+            <div style="border: 2px solid var(--primary); border-radius: 8px; padding: 16px;">
+                <h4 style="color: var(--primary); margin-bottom: 8px;">Required (Core)</h4>
+                <pre style="font-size: 0.82rem;"><code>&lt;!-- AAVA Secrets Spring Boot Starter --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.asc.aava&lt;/groupId&gt;
+    &lt;artifactId&gt;aava-core-secrets-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.5&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            </div>
+            <div style="border: 2px solid var(--warning); border-radius: 8px; padding: 16px;">
+                <h4 style="color: #e37400; margin-bottom: 8px;">Pick Your Cloud Adapter</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">Add only the one matching your vault:</p>
+                <pre style="font-size: 0.82rem;"><code>&lt;!-- Azure Key Vault --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.asc.aava&lt;/groupId&gt;
+    &lt;artifactId&gt;azure-keyvault-adapter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.5&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- OR AWS Secrets Manager --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.asc.aava&lt;/groupId&gt;
+    &lt;artifactId&gt;aws-secrets-manager-adapter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.5&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- OR GCP Secret Manager --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.asc.aava&lt;/groupId&gt;
+    &lt;artifactId&gt;gcp-secret-manager-adapter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.5&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Not using secrets manager?</strong> If you just pass the password via <code>DB_PASSWORD</code> env var directly, you don't need any of these dependencies. They are only required when you want the library to fetch the password from a vault.
+        </div>
+
+        <h3 style="margin-top: 30px;">Enable Secrets Manager</h3>
+        <pre><code># Enable secrets integration
+aava.secrets.enabled=${ENABLE_SECRETS:true}
+
+# Enable managed identity (passwordless vault access)
+aava.managed.identity=${ENABLE_MANAGED_IDENTITY:true}</code></pre>
+
+        <h3 style="margin-top: 30px;">Managed Identity = <code>true</code> (Passwordless — Recommended for Cloud)</h3>
+        <p>When <code>aava.managed.identity=true</code>, the library connects to your secrets vault using <strong>managed identity / workload identity</strong> — no client secrets needed. You only need the vault endpoint:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0;">
+            <div class="cloud-card azure" style="margin: 0;">
+                <h4>Azure Key Vault</h4>
+                <pre style="font-size: 0.82rem;"><code># Only vault URL needed
+aava.secrets.vault-url=${AZURE_KEYVAULT_URL:}</code></pre>
+                <p style="font-size: 0.82rem; color: var(--text-secondary);">Connects via Managed Identity / Workload Identity automatically</p>
+            </div>
+            <div class="cloud-card aws" style="margin: 0;">
+                <h4>AWS Secrets Manager</h4>
+                <pre style="font-size: 0.82rem;"><code># Only region needed
+aava.secrets.region=${AWS_REGION:}
+
+# Optional — only if cross-account
+aava.secrets.assume-role-arn=${AAVA_ASSUME_ROLE_ARN:}</code></pre>
+                <p style="font-size: 0.82rem; color: var(--text-secondary);">Connects via IAM role attached to pod/instance</p>
+            </div>
+            <div class="cloud-card gcp" style="margin: 0;">
+                <h4>GCP Secret Manager</h4>
+                <pre style="font-size: 0.82rem;"><code># Only project ID needed
+aava.secrets.project-id=${GCP_PROJECT_ID:}</code></pre>
+                <p style="font-size: 0.82rem; color: var(--text-secondary);">Connects via Workload Identity / ADC automatically</p>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Key point:</strong> With managed identity enabled, you do NOT need client-id, client-secret, access-key, etc. The cloud platform handles authentication automatically via the pod's identity.
+        </div>
+
+        <h3 style="margin-top: 30px;">Managed Identity = <code>false</code> (Service Principal / Static Keys — Local Dev)</h3>
+        <p>When <code>aava.managed.identity=false</code>, the library authenticates to the vault using explicit credentials. Use this for local development or environments without managed identity.</p>
+
+        <div class="auth-tabs" style="margin-top: 16px;">
+            <button class="auth-tab active" data-tab="secret-azure" onclick="switchSecretTab('secret-azure')">Azure Key Vault</button>
+            <button class="auth-tab" data-tab="secret-aws" onclick="switchSecretTab('secret-aws')">AWS Secrets Manager</button>
+            <button class="auth-tab" data-tab="secret-gcp" onclick="switchSecretTab('secret-gcp')">GCP Secret Manager</button>
+        </div>
+
+        <div class="auth-content active" id="tab-secret-azure">
+            <pre><code>aava.managed.identity=false
+aava.secrets.enabled=true
+
+# Azure Key Vault — full credentials
+aava.secrets.vault-url=${AZURE_KEYVAULT_URL:}
+aava.secrets.client-id=${AZURE_CLIENT_ID:}
+aava.secrets.client-secret=${AZURE_CLIENT_SECRET:}
+aava.secrets.tenant-id=${AZURE_TENANT_ID:}</code></pre>
+        </div>
+
+        <div class="auth-content" id="tab-secret-aws">
+            <pre><code>aava.managed.identity=false
+aava.secrets.enabled=true
+
+# AWS Secrets Manager — full credentials
+aava.secrets.region=${AWS_REGION:}
+aava.secrets.access-key=${AWS_ACCESS_KEY_ID:}
+aava.secrets.secret-key=${AWS_SECRET_ACCESS_KEY:}
+aava.secrets.assume-role-arn=${AAVA_ASSUME_ROLE_ARN:}</code></pre>
+        </div>
+
+        <div class="auth-content" id="tab-secret-gcp">
+            <pre><code>aava.managed.identity=false
+aava.secrets.enabled=true
+
+# GCP Secret Manager — full credentials
+aava.secrets.project-id=${GCP_PROJECT_ID:}
+aava.secrets.credentials-path=${GCP_CREDENTIAL_PATH:}</code></pre>
+        </div>
+
+        <h3 style="margin-top: 30px;">Summary</h3>
+        <table>
+            <thead>
+                <tr><th>Scenario</th><th><code>managed.identity</code></th><th>What You Need</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Azure cloud (AKS with WIF)</td><td><code>true</code></td><td>Only <code>aava.secrets.vault-url</code></td></tr>
+                <tr><td>AWS cloud (EKS with IRSA)</td><td><code>true</code></td><td>Only <code>aava.secrets.region</code> (+ optional <code>assume-role-arn</code>)</td></tr>
+                <tr><td>GCP cloud (GKE with WI)</td><td><code>true</code></td><td>Only <code>aava.secrets.project-id</code></td></tr>
+                <tr><td>Local dev (Azure vault)</td><td><code>false</code></td><td><code>vault-url</code> + <code>client-id</code> + <code>client-secret</code> + <code>tenant-id</code></td></tr>
+                <tr><td>Local dev (AWS vault)</td><td><code>false</code></td><td><code>region</code> + <code>access-key</code> + <code>secret-key</code></td></tr>
+                <tr><td>Local dev (GCP vault)</td><td><code>false</code></td><td><code>project-id</code> + <code>credentials-path</code></td></tr>
+                <tr><td>No secrets manager at all</td><td>N/A</td><td>Set <code>aava.secrets.enabled=false</code> and use <code>DB_PASSWORD</code> env var directly</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="section" id="step5">
+        <h2><span class="step-num">6</span> Optional Configuration</h2>
+
+        <h3>Database Schema (Required)</h3>
+        <pre><code># Set this to your service's database schema name
+aava.datasource.schema=myschema</code></pre>
+        <div class="warning">
+            <strong>Mandatory:</strong> You must set <code>aava.datasource.schema</code> to match your service's database schema. If not set, it defaults to <code>core</code> which may not be correct for your service.
+        </div>
+
+        <h3>SSL (password mode only)</h3>
+        <pre><code>aava.datasource.ssl=true
+aava.datasource.sslmode=require</code></pre>
+        <div class="note"><strong>Note:</strong> SSL is always enforced in <code>aws-iam</code>, <code>azure-wif</code>, and <code>gcp-wif</code> modes automatically.</div>
+
+        <h3>HikariCP Connection Pool</h3>
+        <pre><code>datasource.hikari.minimum-idle=2
+datasource.hikari.maximum-pool-size=10
+datasource.hikari.connection-timeout=30000
+datasource.hikari.idle-timeout=300000
+datasource.hikari.max-lifetime=1800000
+datasource.hikari.auto-commit=false</code></pre>
+
+        <h3>Token Modes — Max Lifetime Override</h3>
+        <table class="token-table">
+            <thead><tr><th>Mode</th><th>maxLifetime (set by library)</th><th>Reason</th></tr></thead>
+            <tbody>
+                <tr><td>aws-iam</td><td>14 minutes</td><td>IAM tokens expire in 15 min</td></tr>
+                <tr><td>azure-wif</td><td>50 minutes</td><td>Azure AD tokens expire in 60–75 min</td></tr>
+                <tr><td>gcp-wif</td><td>50 minutes</td><td>GCP tokens expire in 60 min</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Hibernate / JPA</h3>
+        <pre><code>hibernate.ddl-auto=none
+show-sql=false
+properties.hibernate.format_sql=false
+database-platform=org.hibernate.dialect.PostgreSQLDialect</code></pre>
+
+        <h3>Full Property Reference</h3>
+        <table>
+            <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>aava.datasource.auth-mode</code></td><td><code>password</code></td><td>Authentication mode</td></tr>
+                <tr><td><code>aava.datasource.base-package</code></td><td><code>com.asc.aava</code></td><td>JPA entity scan packages (comma-separated)</td></tr>
+                <tr><td><code>aava.datasource.schema</code></td><td><code>core</code></td><td>DB schema for Hikari + Hibernate</td></tr>
+                <tr><td><code>aava.datasource.ssl</code></td><td><code>false</code></td><td>Enable SSL (password mode)</td></tr>
+                <tr><td><code>aava.datasource.sslmode</code></td><td><code>require</code></td><td>SSL mode</td></tr>
+                <tr><td><code>datasource.url</code></td><td><em>required</em></td><td>JDBC PostgreSQL URL</td></tr>
+                <tr><td><code>datasource.username</code></td><td><em>required</em></td><td>DB username</td></tr>
+                <tr><td><code>datasource.password</code></td><td><em>empty</em></td><td>DB password (password mode)</td></tr>
+                <tr><td><code>datasource.password.keyname</code></td><td><em>empty</em></td><td>Secret key to fetch password from vault</td></tr>
+                <tr><td><code>aava.secrets.region</code></td><td><em>required for aws-iam</em></td><td>AWS region</td></tr>
+                <tr><td><code>aava.secrets.assume-role-arn</code></td><td><em>required for aws-iam</em></td><td>IAM role ARN</td></tr>
+                <tr><td><code>spring.application.name</code></td><td><code>aava-service</code></td><td>Hikari pool name prefix</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="section" id="step6">
+        <h2><span class="step-num">7</span> Cloud Prerequisites</h2>
+
+        <div class="cloud-card aws">
+            <h4>AWS — <code>aws-iam</code> Mode</h4>
+            <ol style="padding-left: 20px; color: var(--text-secondary);">
+                <li>RDS instance must have <strong>IAM authentication enabled</strong></li>
+                <li>The IAM role must have <code>rds-db:connect</code> permission:
+                    <pre><code>{
+  "Effect": "Allow",
+  "Action": "rds-db:connect",
+  "Resource": "arn:aws:rds-db:&lt;region&gt;:&lt;account&gt;:dbuser/*/&lt;username&gt;"
+}</code></pre>
+                </li>
+                <li>DB user must have <code>rds_iam</code> role:
+                    <pre><code>CREATE USER myiamuser WITH LOGIN;
+GRANT rds_iam TO myiamuser;</code></pre>
+                </li>
+            </ol>
+        </div>
+
+        <div class="cloud-card azure">
+            <h4>Azure — <code>azure-wif</code> Mode</h4>
+            <ol style="padding-left: 20px; color: var(--text-secondary);">
+                <li>AAD admin must be configured on the PostgreSQL server</li>
+                <li>DB username must match the AAD principal display name</li>
+                <li>For Kubernetes: ensure <code>AZURE_CLIENT_ID</code>, <code>AZURE_TENANT_ID</code>, and <code>AZURE_FEDERATED_TOKEN_FILE</code> are injected via Workload Identity</li>
+                <li>For local dev: run <code>az login</code> before starting the service</li>
+            </ol>
+        </div>
+
+        <div class="cloud-card gcp">
+            <h4>GCP — <code>gcp-wif</code> Mode</h4>
+            <ol style="padding-left: 20px; color: var(--text-secondary);">
+                <li>Cloud SQL instance flag: <code>cloudsql.iam_authentication = on</code></li>
+                <li>Service account must have <code>roles/cloudsql.instanceUser</code></li>
+                <li>DB user created as IAM user:
+                    <pre><code>CREATE USER "my-sa@my-project.iam" WITH LOGIN;</code></pre>
+                </li>
+                <li>For local dev: run <code>gcloud auth application-default login</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="section" id="step7">
+        <h2><span class="step-num">8</span> Remove Old Code (If Migrating)</h2>
+        <p>If your service previously had inline datasource configuration, delete these files:</p>
+        <ul class="remove-list">
+            <li>DatabaseConfig.java</li>
+            <li>DataSourceWithIAM.java</li>
+            <li>DataSourceWithAzureWIF.java</li>
+            <li>DataSourceWithGCPWIF.java</li>
+        </ul>
+        <p style="margin-top: 16px;">Also remove generic DB property-loading logic from your <code>ApplicationPropertiesLoader</code> — keep only service-specific secrets (Redis, API keys, etc.).</p>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="section" id="step8">
+        <h2><span class="step-num">9</span> Verification Checklist</h2>
+        <ul class="checklist">
+            <li><code>aava-datasource-spring-boot-starter:1.0.1</code> added to <code>pom.xml</code></li>
+            <li>AAVA Maven repository configured in <code>pom.xml</code> or <code>settings.xml</code></li>
+            <li><code>@SpringBootApplication</code> excludes <code>DataSourceAutoConfiguration</code> + <code>HibernateJpaAutoConfiguration</code></li>
+            <li><code>aava.datasource.base-package</code> set to your service's entity package</li>
+            <li><code>aava.datasource.auth-mode</code> set (or <code>DATASOURCE_AUTH_MODE</code> env var configured)</li>
+            <li><code>datasource.url</code> and <code>datasource.username</code> configured</li>
+            <li><code>aava.datasource.schema</code> set if not using default "core"</li>
+            <li>Old inline datasource config classes removed (if migrating)</li>
+            <li>Build passes: <code>mvn clean package</code></li>
+            <li>Service starts and connects to DB successfully</li>
+        </ul>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="section" id="step9">
+        <h2><span class="step-num">10</span> Troubleshooting</h2>
+
+        <details class="troubleshooting-item">
+            <summary><code>No qualifying bean of type 'javax.sql.DataSource'</code></summary>
+            <div class="detail">
+                <strong>Cause:</strong> Missing exclusion on the main application class.<br>
+                <strong>Fix:</strong> Add <code>exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class}</code> to <code>@SpringBootApplication</code>.
+            </div>
+        </details>
+
+        <details class="troubleshooting-item">
+            <summary><code>Could not determine recommended JdbcType</code></summary>
+            <div class="detail">
+                <strong>Cause:</strong> Entity package not being scanned.<br>
+                <strong>Fix:</strong> Set <code>aava.datasource.base-package</code> to the package containing your <code>@Entity</code> classes.
+            </div>
+        </details>
+
+        <details class="troubleshooting-item">
+            <summary><code>IAM token generation failed</code></summary>
+            <div class="detail">
+                <strong>Cause:</strong> Wrong AWS region or role ARN.<br>
+                <strong>Fix:</strong> Verify <code>aava.secrets.region</code> and <code>aava.secrets.assume-role-arn</code> match your RDS instance.
+            </div>
+        </details>
+
+        <details class="troubleshooting-item">
+            <summary><code>Azure WIF token acquisition failed</code></summary>
+            <div class="detail">
+                <strong>Cause:</strong> Missing Azure identity environment variables.<br>
+                <strong>Fix:</strong> Ensure Workload Identity env vars (<code>AZURE_CLIENT_ID</code>, <code>AZURE_TENANT_ID</code>, <code>AZURE_FEDERATED_TOKEN_FILE</code>) are injected, or run <code>az login</code> locally.
+            </div>
+        </details>
+
+        <details class="troubleshooting-item">
+            <summary><code>GCP WIF token refresh failed</code></summary>
+            <div class="detail">
+                <strong>Cause:</strong> No GCP credentials available.<br>
+                <strong>Fix:</strong> Set <code>GOOGLE_APPLICATION_CREDENTIALS</code> env var or run <code>gcloud auth application-default login</code>.
+            </div>
+        </details>
+
+        <details class="troubleshooting-item">
+            <summary>Queries fail with schema error</summary>
+            <div class="detail">
+                <strong>Cause:</strong> Wrong schema configured.<br>
+                <strong>Fix:</strong> Set <code>aava.datasource.schema=your-schema-name</code> in properties.
+            </div>
+        </details>
+    </div>
+
+    <!-- EXAMPLE -->
+    <div class="section">
+        <h2>Complete Example — Real Service Setup</h2>
+        <h3>application.properties</h3>
+        <pre><code>spring.application.name=guardrails-service
+
+# ─── Driver & Connection ───────────────────────────────────────────────
+driverClassName=${DB_DRIVER:org.postgresql.Driver}
+datasource.url=${DB_URL:jdbc:postgresql://aava-dev-postgres-db.postgres.database.azure.com:5432/postgres}
+datasource.username=${DB_USER:postgres}
+
+# ─── Password (choose one approach) ───────────────────────────────────
+# Approach 1: Via Secrets Manager (recommended for prod)
+datasource.password.keyname=${DB_PASSWORD_KEY_NAME:DB-PASSWORD}
+# Approach 2: Via environment variable directly
+datasource.password=${DB_PASSWORD:}
+
+# ─── AAVA Datasource Starter ──────────────────────────────────────────
+aava.datasource.base-package=com.asc.aava.guardrails
+aava.datasource.schema=core
+aava.datasource.auth-mode=${DATASOURCE_AUTH_MODE:password}
+
+# ─── HikariCP Pool ────────────────────────────────────────────────────
+datasource.hikari.schema=core
+datasource.hikari.max-lifetime=1800000
+datasource.hikari.connection-timeout=30000
+datasource.hikari.idle-timeout=300000
+datasource.hikari.minimum-idle=2
+datasource.hikari.maximum-pool-size=5
+
+# ─── JPA / Hibernate ──────────────────────────────────────────────────
+database-platform=${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+hibernate.ddl-auto=none
+properties.hibernate.default_schema=core
+show-sql=true
+properties.hibernate.format_sql=true
+properties.hibernate.use_sql_comments=true</code></pre>
+
+        <h3>MyServiceApplication.java</h3>
+        <pre><code>package com.asc.aava.guardrails;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class
+})
+@EnableTransactionManagement
+public class GuardrailsServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GuardrailsServiceApplication.class, args);
+    }
+}</code></pre>
+    </div>
+
+</div>
+
+<script>
+function switchTab(tab) {
+    const section = document.getElementById('step4');
+    section.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    section.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+    section.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+function switchSecretTab(tab) {
+    const section = document.getElementById('step-secrets');
+    section.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    section.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+    section.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+}
+</script>
+
+</body>
+</html>

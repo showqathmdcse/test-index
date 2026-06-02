@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.14</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.asc.aava</groupId>
+    <artifactId>aava-datasource-spring-boot-starter</artifactId>
+    <version>1.0.1</version>
+    <name>aava-datasource-spring-boot-starter</name>
+    <description>
+        Generic Spring Boot starter for multi-cloud PostgreSQL DataSource auto-configuration.
+        Supports password, AWS IAM, Azure WIF, and GCP WIF authentication modes via
+        aava.datasource.auth-mode=${DATASOURCE_AUTH_MODE:password}.
+    </description>
+
+    <properties>
+        <java.version>21</java.version>
+        <aws-sdk.version>2.41.2</aws-sdk.version>
+        <azure-sdk-bom.version>1.2.21</azure-sdk-bom.version>
+        <google-auth.version>1.40.0</google-auth.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Spring Boot autoconfiguration support -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Annotation processor for @ConfigurationProperties metadata -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Data JPA (consumers need this; bring it transitively) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.11</version>
+        </dependency>
+
+        <!-- HikariCP (pulled in by spring-boot-starter-data-jpa, listed for clarity) -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <!-- Spring JDBC (JdbcTemplate) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <!-- AWS SDK: RDS IAM auth + STS role assumption (optional at runtime) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>rds</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Azure Identity: DefaultAzureCredential for WIF (optional at runtime) -->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-identity</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- GCP OAuth2: ApplicationDefault credentials for Cloud SQL WIF (optional at runtime) -->
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>${google-auth.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- AAVA Core starter: GenericConfigurationService (optional — used only by GenericPropertiesLoader) -->
+        <dependency>
+            <groupId>com.asc.aava</groupId>
+            <artifactId>aava-core-java-starter</artifactId>
+            <version>1.4.4</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- AAVA Secrets Spring Boot Starter -->
+        <dependency>
+            <groupId>com.asc.aava</groupId>
+            <artifactId>aava-core-secrets-spring-boot-starter</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+
+        <!-- Azure Key Vault Adapter -->
+        <dependency>
+            <groupId>com.asc.aava</groupId>
+            <artifactId>azure-keyvault-adapter</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+
+        <!-- AWS Secrets Manager Adapter -->
+        <dependency>
+            <groupId>com.asc.aava</groupId>
+            <artifactId>aws-secrets-manager-adapter</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+
+        <!-- GCP Secret Manager Adapter -->
+        <dependency>
+            <groupId>com.asc.aava</groupId>
+            <artifactId>gcp-secret-manager-adapter</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+
+        <!-- Spring Cloud Context: ContextRefresher support (optional) -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-sdk-bom</artifactId>
+                <version>${azure-sdk-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2024.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- Plain JAR only — no fat jar for a starter -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Distribution Management (for publishing to repository) -->
+    <distributionManagement>
+        <repository>
+            <id>AAVA</id>
+            <url>
+                https://pkgs.dev.azure.com/ascendionava/AAVA/_packaging/AAVA/maven/v1</url>
+        </repository>
+        <snapshotRepository>
+            <id>AAVA</id>
+            <url>
+                https://pkgs.dev.azure.com/ascendionava/AAVA/_packaging/AAVA/maven/v1</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases><enabled>false</enabled></releases>
+        </repository>
+        <repository>
+            <id>AAVA</id>
+            <url>https://pkgs.dev.azure.com/ascendionava/AAVA/_packaging/AAVA/maven/v1</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+</project>
